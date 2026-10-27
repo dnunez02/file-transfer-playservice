@@ -2,6 +2,14 @@
 
 In this protocol, messages are sent **exactly as written here**, meaning no extra spaces or newlines should be inserted unless the message **explicitly** adds the space or newline.
 
+### Known limitations
+
+The protocol does not work if any of the following are true:
+- The file names contains `.`, `..`, or `/`. Those indicate file paths.
+- The file is empty. The server using the format described below won't send any messages when you attempt to open that file.
+
+This means you shouldn't use this for **secure** file transfer of any kind, hence this protocol's role as an academic exercise.
+
 ### File Datagram Format
 
 Before dictating the protocol, there is a key message format to understand: the _file datagram format_. This datagram format is how chunks of files are sent throughout the protocol. The datagram format is as follows:

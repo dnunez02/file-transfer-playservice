@@ -17,7 +17,7 @@ Order matters: each step uses something created in an earlier one. Keep a scratc
 
 1. **Pick a region** and use it for everything below. Learner Labs only allow `us-east-1` (N. Virginia) and `us-west-2` (Oregon). The Terraform stack uses `us-west-2`; use `us-east-1` instead if that is closer to you. In the console, choose it in the region menu at the top right, and check the menu still shows it at the start of every section. Resources in a different region will not see each other.
 2. **Tools on your computer:** Docker, and the AWS CLI v2 (used only for pushing images and testing).
-3. **AWS credentials.** Open your course, click *Start Lab*, wait for the green dot, then click *AWS* to open the console. Click *AWS Details*, then *AWS CLI: Show*, and put the three values (access key ID, secret access key and session token) in `~/.aws/credentials` under `[default]`. They expire when the lab session ends, so copy fresh ones each time you start the lab and before you run any `aws` or `docker login` command.
+3. **AWS credentials.** Open your course, click *Start Lab*, wait for the green dot, then click *AWS* to open the console. Click *AWS Details*, then *AWS CLI: Show*, and put the three values (access key ID, secret access key and session token) in using `aws configure`. They expire when the lab session ends, so copy fresh ones each time you start the lab and before you run any `aws` or `docker login` command.
 4. **The role.** The tasks run as the `LabRole` that every Learner Lab provides; you do not create any IAM roles. Open **IAM > Roles** and check `LabRole` exists. It already has the S3 read access the backend needs (`s3:GetObject` on your bucket).
 5. **Create your own S3 bucket.** The backend serves files from a bucket under a prefix, and this guide uses a bucket you create yourself. Your lab console session creates it, not `LabRole`. If the console refuses to create a bucket, ask your instructor.
    1. Console: **S3 > Create bucket**. Check the region menu shows the region you picked in item 1.
@@ -62,7 +62,7 @@ Everything runs in the account's default VPC.
 
 ## 3. Build and push the images
 
-Run these from the repository root (the folder containing `transfer-server/` and `transfer-frontend/`). The images must be `linux/amd64`, because the task definitions in step 9 use the X86_64 platform, even if you build on an Apple silicon Mac.
+Run these from the repository root (the folder containing `transfer-server/` and `transfer-frontend/`). The images must be `linux/amd64`, because the task definitions in step 9 use the X86_64 platform.
 
 ```bash
 docker build --platform linux/amd64 -f transfer-server/Dockerfile  -t file-transfer-backend:latest .
@@ -174,7 +174,7 @@ Values from earlier steps that you need: your account ID and region (step 0), th
 
 ### Steps for each task definition
 
-1. **Task definition configuration:** enter the *Task definition family* from the table.
+1. **Task definition configuration:** enter the *Task definition family* from the table below these steps.
 2. **Infrastructure requirements:**
    - Launch type: *AWS Fargate*
    - Operating system/Architecture: *Linux/X86_64*
@@ -182,7 +182,7 @@ Values from earlier steps that you need: your account ID and region (step 0), th
    - Task role: *LabRole* (choose the existing role; do not create one)
    - Task execution role: *LabRole*
 3. **Container - 1:**
-   - Name: from the table.
+   - Name: from the table below these steps.
    - Image URI: `<ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/file-transfer-<gateway or backend>:latest`. Open the repository in ECR and use *Copy URI* on the `latest` image to get it right.
    - Essential container: *Yes*
    - Port mappings: the rows from the table (*Add port mapping* for each extra one). Leave the port name and app protocol empty.
@@ -195,7 +195,7 @@ Values from earlier steps that you need: your account ID and region (step 0), th
 
 | Setting | Value |
 |---|---|
-| Family | `file-transfer-backend` |
+| Task definition family | `file-transfer-backend` |
 | Container name | `backend` |
 | Port mappings | `8080` / UDP, and `8081` / TCP |
 | `awslogs-group` | `/ecs/file-transfer-backend` |
@@ -216,7 +216,7 @@ Values from earlier steps that you need: your account ID and region (step 0), th
 
 | Setting | Value |
 |---|---|
-| Family | `file-transfer-gateway` |
+| Task definition family | `file-transfer-gateway` |
 | Container name | `gateway` |
 | Port mappings | `8000` / TCP |
 | `awslogs-group` | `/ecs/file-transfer-gateway` |
@@ -229,7 +229,13 @@ Values from earlier steps that you need: your account ID and region (step 0), th
 | `UPSTREAM` | the NLB DNS name from step 5b, followed by `:8080` (no `http://`) |
 | `MAX_INFLIGHT` | `4` |
 
-What the settings mean: `WORKERS` is how many requests one backend task handles at once, `MAX_INFLIGHT` how many transfers one gateway task runs at once, and `SEND_LOSS` / `RECV_LOSS` are percentages of datagrams the backend deliberately drops to simulate a lossy network (keep them `0` for normal use). The `PREFIX` value must match the folder you created in your bucket and end with a slash.
+What the settings mean: 
+
+- `WORKERS` is how many requests one backend task handles at once
+- `MAX_INFLIGHT` how many transfers one gateway task runs at once
+- `SEND_LOSS` / `RECV_LOSS` are percentages of datagrams the backend deliberately drops to simulate a lossy network even when there isn't enough traffic to foce datagram drops (keep them `0` for normal use).
+
+The `PREFIX` value must match the folder you created in your bucket and end with a slash.
 
 ## 10. ECS services
 
@@ -335,6 +341,4 @@ Delete in this order, so nothing is still in use when you delete it. Everything 
 | Already existing, not created | default VPC and subnets, `LabRole` | `network.tf`, `ecs.tf` |
 | S3 bucket (you create it in step 0, with a `tmp/` folder) | a name of your choice | not created by Terraform: `main.tf` only looks up an existing bucket |
 
-The Terraform files default to a different bucket name (`files_bucket` in `variables.tf`); this guide does not use it.
-
-One detail to be aware of: a comment in `terraform/network.tf` says the backend target group turns client IP preservation off, but `terraform/nlb.tf` sets `preserve_client_ip = "true"`. This guide follows `nlb.tf` (step 5a). The backend security group rule (the whole VPC CIDR) works either way.
+The Terraform files default to a different bucket name (`files_bucket` in `variables.tf`); this guide does not use it. Instead, you would add the bucket name to a `terraform.tfvars` file to override this default.
