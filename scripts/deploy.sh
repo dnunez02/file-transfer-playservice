@@ -146,5 +146,5 @@ echo
 echo "Next steps:"
 echo "  upload a file:   aws s3 cp ./my-file.txt s3://$BUCKET/${PREFIX}my-file.txt"
 echo "  fetch it:        curl -o out.txt \"http://$ALB/files?name=my-file.txt\""
-echo "  run the test:    scripts/e2e-aws-udp.sh --yes"
+echo "  run your own experiments"
 echo "  tear it down:    scripts/destroy.sh --yes"
