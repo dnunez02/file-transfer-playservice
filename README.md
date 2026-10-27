@@ -34,9 +34,9 @@ The backend only has one API endpoint
 
 The backend otherwise responds to UDP datagrams that follow the [FTP_6650 Protocol](FTP_6650-protocol-README.md).
 
-## Graceful termination with `-drain`
+## Graceful termination
 
-The gateway and backend have a flag `-drain` that allows for graceful if interrupted or killed. If that flag is set accordingly, any interrupt or kill signal sent (via Ctrl+C or the `kill` command) will tell that program to refuse new requests and let the currently working requests attempt to finish their work before terminating. Use `kill -9` if you want to kill a process that has the drain flag set.
+The gateway and backend allow for graceful if interrupted or killed. Any interrupt or kill signal sent (via Ctrl+C or the `kill` command) will tell that program to refuse new requests and let the currently working requests attempt to finish their work before terminating. Use `kill -9` if you want to kill a process that has the drain flag set.
 
 ## Local Setup
 
