@@ -59,6 +59,16 @@ curl -o out.txt "http://localhost:8080/files?name=my-file.txt"
 cat out.txt   # Should see "hello there"
 ```
 
+## AWS Architecture
+
+The AWS architecture is shown below
+
+![image](images/mermaid-diagram-2026-10-27-164301.png)
+
+The gateway is hidden behind an Application Load Balancer and is hooked up to an autoscaler, hence the replica. The backend is hidden behind a Network Load Balancer and is hooked up to an autoscaler, hence the replica. A **network load balancer** does the same job as the application load balancer, but it traffics TCP packets and UDP datagrams instead of HTTP requests. In other words, it is a load balancer at the transport level of the OSI model.
+
+The backend gathers files from S3 instead of local disk. This allows the backend to be truly stateless and therefore replicatable.
+
 ## AWS Deployment
 
 See [AUTO_SETUP.md](AUTO_SETUP.md) for all the details on how to set up and deploy the service on AWS using the scripts given. The process is involved. Windows users should have Git Bash to assist with running the bash scripts for deployment or use the manual setups in [MANUAL_SETUP.md]
