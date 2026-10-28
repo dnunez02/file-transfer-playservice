@@ -18,7 +18,7 @@ Note that the protocol works with _any_ file format since all files are bits in 
 
 ## API Endpoints
 
-The gateway exposes two endpoints, also described in [gateway_api.yaml]:
+The gateway exposes two endpoints, also described in [gateway_api.yaml](gateway_api.yaml):
 - `GET /files?name=<FILE-NAME>` : Retrieve a file with the given name. Can return the following status codes
     - `200 OK` with the file in the body as bytes
     - `404 file not found` if the file does not exist
