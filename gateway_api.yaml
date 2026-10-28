@@ -1,0 +1,114 @@
+openapi: 3.0.3
+info:
+  title: Gateway File Retrieval API
+  description: API for retrieving files from this service 
+  version: 1.0.1
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+  - url: https://staging-api.example.com/v1
+    description: Staging server
+
+paths:
+  # Product Service Endpoints
+  /files:
+    get:
+      tags:
+        - Files
+      summary: Search for products that match
+      description: Retrieve the file named by the query string
+      operationId: handleGetFile
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: Name of the file as recognized by the server
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+      responses:
+        '200':
+          description: Search completed
+          content:
+            '*/*': # Gateway actaully send appropriate content types for known media types. Using this to simplify the fact that ANY file, even unrecognized, can be returned
+              schema:
+                type: string
+                format: byte
+        '404':
+          description: File not found on the file server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: File server rejected the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: File server did not respond
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Check the health of the gateway
+      description: Checks if the gateway is healthy or currently draining
+      operationId: handleHealthCheck
+      responses:
+        '200':
+          description: Product found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '503':
+          description: Unhealthy and draining
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+
+components:
+  schemas:
+    Health:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          description: Human-readable status of the gateway
+          example: "ok"
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Human-readable error message
+          example: "The provided input data is invalid"
+        details:
+          type: string
+          description: Additional error details
+          example: "Product ID must be a positive integer"
+
+tags:
+  - name: Files
+    description: Operations for handling Files
+  - name: Health
+    description: Health checks for the Gateway
