@@ -18,7 +18,7 @@ Note that the protocol works with _any_ file format since all files are bits in 
 
 ## API Endpoints
 
-The gateway exposes two endpoints, also described in [gateway_api.yaml]:
+The gateway exposes two endpoints, also described in [gateway_api.yaml](gateway_api.yaml):
 - `GET /files?name=<FILE-NAME>` : Retrieve a file with the given name. Can return the following status codes
     - `200 OK` with the file in the body as bytes
     - `404 file not found` if the file does not exist
@@ -52,7 +52,7 @@ bin/backend udp -dir=<PATH-TO-FILES> -port=8080 -health-port=8081 &
 bin/gateway -transport=udp -upstream=localhost:8080 -listen=:8082 &
 ```
 
-You can then send request to the gateway via `curl`
+You can then send requests to the gateway via `curl`
 
 ``` bash
 echo "hello there" > <PATH-TO-FILES>/my-file.txt
@@ -62,7 +62,7 @@ cat out.txt   # Should see "hello there"
 
 ## AWS Architecture
 
-The AWS architecture is shown below
+The AWS architecture is shown below (image created using [mermaid.live](https://mermaid.live))
 
 ![image](images/mermaid-diagram-2026-10-27-164301.png)
 
@@ -72,7 +72,7 @@ The backend gathers files from S3 instead of local disk. This allows the backend
 
 ## AWS Deployment
 
-See [AUTO_SETUP.md](AUTO_SETUP.md) for all the details on how to set up and deploy the service on AWS using the scripts given. The process is involved. Windows users should have Git Bash to assist with running the bash scripts for deployment or use the manual setups in [MANUAL_SETUP.md]
+See [AUTO_SETUP.md](AUTO_SETUP.md) for all the details on how to set up and deploy the service on AWS using the scripts given. The process is involved. Windows users should have Git Bash to assist with running the bash scripts for deployment or use the manual setups in [MANUAL_SETUP.md](MANUAL_SETUP.md)
 
 ## AWS Tear down
 
